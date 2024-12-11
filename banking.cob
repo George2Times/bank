@@ -1,40 +1,41 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. BankingSystem.
+       PROGRAM-ID. BankingSystem.  *> Program name
 
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT CustomerFile ASSIGN TO "customer_data.dat"
-               ORGANIZATION IS LINE SEQUENTIAL.
+               ORGANIZATION IS LINE SEQUENTIAL.  *> File for customer records
            SELECT TransactionLogFile ASSIGN TO "transaction_logs.dat"
-               ORGANIZATION IS LINE SEQUENTIAL.
+               ORGANIZATION IS LINE SEQUENTIAL.  *> File for transaction logs
 
        DATA DIVISION.
        FILE SECTION.
        FD CustomerFile.
        01 CustomerRecord.
-           05 CustomerID      PIC X(5).
-           05 CustomerName    PIC X(30).
-           05 Balance         PIC 9(7)V99.
-           05 PhoneNumber     PIC X(15).
+           05 CustomerID      PIC X(5).    *> Customer ID field
+           05 CustomerName    PIC X(30).   *> Customer name field
+           05 Balance         PIC 9(7)V99. *> Customer balance (7 digits + 2 decimals)
+           05 PhoneNumber     PIC X(15).   *> Customer phone number field
 
        FD TransactionLogFile.
        01 TransactionRecord.
-           05 TransactionID   PIC 9(6).
-           05 TransCustomerID PIC X(5).
-           05 TransType       PIC X(8).
-           05 TransAmount     PIC 9(7)V99.
+           05 TransactionID   PIC 9(6).    *> Transaction ID field
+           05 TransCustomerID PIC X(5).    *> Customer ID associated with the transaction
+           05 TransType       PIC X(8).    *> Transaction type (e.g., Deposit/Withdraw)
+           05 TransAmount     PIC 9(7)V99. *> Transaction amount
 
        WORKING-STORAGE SECTION.
-       01 MenuChoice         PIC 9 VALUE 0.
-       01 InputCustomerID    PIC X(5).
-       01 InputAmount        PIC 9(7)V99.
-       01  EOF               PIC X VALUE 'N'.
-       01 IsFound            PIC X VALUE "N".
-       01 TempBalance        PIC 9(7)V99.
+       01 MenuChoice         PIC 9 VALUE 0.   *> User menu choice
+       01 InputCustomerID    PIC X(5).        *> Input for customer ID
+       01 InputAmount        PIC 9(7)V99.     *> Input for transaction amount
+       01 EOF               PIC X VALUE 'N'. *> End of file marker
+       01 IsFound            PIC X VALUE "N". *> Flag to indicate if customer is found
+       01 TempBalance        PIC 9(7)V99.     *> Temporary storage for balance operations
 
        PROCEDURE DIVISION.
        MAIN-PARA.
+           *> Display menu and process user input in a loop
            PERFORM DISPLAY-MENU
            PERFORM UNTIL MenuChoice = 9
                EVALUATE MenuChoice
@@ -53,6 +54,7 @@
            STOP RUN.
 
        DISPLAY-MENU.
+           *> Display the main menu
            DISPLAY "--------------------------------------".
            DISPLAY "Welcome to Banking System".
            DISPLAY "1. View Balance".
@@ -63,6 +65,7 @@
            ACCEPT MenuChoice.
 
        VIEW-BALANCE.
+           *> View the balance of a specific customer
            MOVE 'N' TO EOF
            DISPLAY "Enter Customer ID: ".
            ACCEPT InputCustomerID.
@@ -86,6 +89,7 @@
            END-IF.
 
        DEPOSIT-MONEY.
+           *> Add money to a customer's account
            MOVE 'N' TO EOF
            DISPLAY "Enter Customer ID: ".
            ACCEPT InputCustomerID.
@@ -111,14 +115,15 @@
                DISPLAY "Customer not found."
            END-IF.
 
-           WITHDRAW-MONEY.
-               MOVE 'N' TO EOF
-               DISPLAY "Enter Customer ID: ".
-               ACCEPT InputCustomerID.
-               DISPLAY "Enter Amount to Withdraw: ".
-               ACCEPT InputAmount.
-               OPEN I-O CustomerFile
-               PERFORM UNTIL EOF = 'Y'
+       WITHDRAW-MONEY.
+           *> Subtract money from a customer's account
+           MOVE 'N' TO EOF
+           DISPLAY "Enter Customer ID: ".
+           ACCEPT InputCustomerID.
+           DISPLAY "Enter Amount to Withdraw: ".
+           ACCEPT InputAmount.
+           OPEN I-O CustomerFile
+           PERFORM UNTIL EOF = 'Y'
                    READ CustomerFile INTO CustomerRecord
                         AT END
                             MOVE 'Y' TO EOF
