@@ -13,7 +13,7 @@
        FILE SECTION.
        FD CustomerFile.
        01 CustomerRecord.
-           05 CustomerID      PIC X(10).
+           05 CustomerID      PIC X(5).
            05 CustomerName    PIC X(30).
            05 Balance         PIC 9(7)V99.
            05 PhoneNumber     PIC X(15).
@@ -21,14 +21,15 @@
        FD TransactionLogFile.
        01 TransactionRecord.
            05 TransactionID   PIC 9(6).
-           05 TransCustomerID PIC X(10).
+           05 TransCustomerID PIC X(5).
            05 TransType       PIC X(8).
            05 TransAmount     PIC 9(7)V99.
 
        WORKING-STORAGE SECTION.
        01 MenuChoice         PIC 9 VALUE 0.
-       01 InputCustomerID    PIC X(10).
+       01 InputCustomerID    PIC X(5).
        01 InputAmount        PIC 9(7)V99.
+       01  EOF               PIC X VALUE 'N'.
        01 IsFound            PIC X VALUE "N".
        01 TempBalance        PIC 9(7)V99.
 
@@ -62,37 +63,40 @@
            ACCEPT MenuChoice.
 
        VIEW-BALANCE.
+           MOVE 'N' TO EOF
            DISPLAY "Enter Customer ID: ".
            ACCEPT InputCustomerID.
            OPEN INPUT CustomerFile
-           PERFORM UNTIL EOF(CustomerFile)
+           PERFORM UNTIL EOF = "Y"
                READ CustomerFile INTO CustomerRecord
                    AT END
-                       MOVE "Y" TO IsFound
+                        MOVE "Y" TO EOF
                    NOT AT END
-                       IF CustomerID = InputCustomerID
-                           DISPLAY "Customer Name: " CustomerName
-                           DISPLAY "Current Balance: $" Balance
-                           MOVE "Y" TO IsFound
-                       END-IF
+                        IF CustomerID = InputCustomerID
+                            DISPLAY "Customer Name: #" CustomerName "#"
+                            DISPLAY "Customer Balance: #" Balance "#"
+                            DISPLAY "Phone Number: #" PhoneNumber "#"
+                            MOVE "Y" TO IsFound
+                        END-IF
                END-READ
-           END-PERFORM
+           END-PERFORM.
            CLOSE CustomerFile
            IF IsFound NOT = "Y"
                DISPLAY "Customer not found."
            END-IF.
 
        DEPOSIT-MONEY.
+           MOVE 'N' TO EOF
            DISPLAY "Enter Customer ID: ".
            ACCEPT InputCustomerID.
            DISPLAY "Enter Amount to Deposit: ".
            ACCEPT InputAmount.
            OPEN I-O CustomerFile
-           PERFORM UNTIL EOF(CustomerFile)
-               READ CustomerFile INTO CustomerRecord
-                   AT END
-                       MOVE "Y" TO IsFound
-                   NOT AT END
+           PERFORM UNTIL EOF = "Y"
+                   READ CustomerFile INTO CustomerRecord
+                        AT END
+                            MOVE "Y" TO EOF
+                        NOT AT END
                        IF CustomerID = InputCustomerID
                            ADD InputAmount TO Balance
                            REWRITE CustomerRecord
@@ -100,38 +104,39 @@
                            DISPLAY "New Balance: $" Balance
                            MOVE "Y" TO IsFound
                        END-IF
-               END-READ
-           END-PERFORM
+                   END-READ
+           END-PERFORM.
            CLOSE CustomerFile
            IF IsFound NOT = "Y"
                DISPLAY "Customer not found."
            END-IF.
 
-       WITHDRAW-MONEY.
-           DISPLAY "Enter Customer ID: ".
-           ACCEPT InputCustomerID.
-           DISPLAY "Enter Amount to Withdraw: ".
-           ACCEPT InputAmount.
-           OPEN I-O CustomerFile
-           PERFORM UNTIL EOF(CustomerFile)
-               READ CustomerFile INTO CustomerRecord
-                   AT END
-                       MOVE "Y" TO IsFound
-                   NOT AT END
-                       IF CustomerID = InputCustomerID
-                           IF Balance >= InputAmount
-                               SUBTRACT InputAmount FROM Balance
-                               REWRITE CustomerRecord
-                               DISPLAY "Withdrawal Successful!"
-                               DISPLAY "New Balance: $" Balance
-                               MOVE "Y" TO IsFound
-                           ELSE
-                               DISPLAY "Insufficient Balance."
-                           END-IF
-                       END-IF
-               END-READ
+           WITHDRAW-MONEY.
+               MOVE 'N' TO EOF
+               DISPLAY "Enter Customer ID: ".
+               ACCEPT InputCustomerID.
+               DISPLAY "Enter Amount to Withdraw: ".
+               ACCEPT InputAmount.
+               OPEN I-O CustomerFile
+               PERFORM UNTIL EOF = 'Y'
+                   READ CustomerFile INTO CustomerRecord
+                        AT END
+                            MOVE 'Y' TO EOF
+                        NOT AT END
+                            IF CustomerID = InputCustomerID
+                                IF Balance >= InputAmount
+                                    SUBTRACT InputAmount FROM Balance
+                                    REWRITE CustomerRecord
+                                    DISPLAY "Withdrawal Successful!"
+                                    DISPLAY "New Balance: $" Balance
+                                    MOVE 'Y' TO IsFound
+                                ELSE
+                                    DISPLAY "Insufficient Balance."
+                                END-IF
+                            END-IF
+                        END-READ
            END-PERFORM
            CLOSE CustomerFile
-           IF IsFound NOT = "Y"
-               DISPLAY "Customer not found."
+           IF IsFound NOT = 'Y'
+                   DISPLAY "Customer not found."
            END-IF.

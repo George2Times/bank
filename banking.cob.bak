@@ -1,0 +1,61 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SIMPLE-BANKING-SYSTEM.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 ACCOUNT-BALANCE      PIC 9(6)V99 VALUE 0.00.
+       01 USER-OPTION          PIC 9 VALUE 0.
+       01 TRANSACTION-AMOUNT   PIC 9(6)V99 VALUE 0.00.
+
+       PROCEDURE DIVISION.
+           PERFORM MAIN-PROGRAM
+           STOP RUN.
+
+       MAIN-PROGRAM.
+           DISPLAY "-------------------------------------".
+           DISPLAY "    WELCOME TO SIMPLE BANK SYSTEM    ".
+           DISPLAY "-------------------------------------".
+
+           PERFORM UNTIL USER-OPTION = 4
+               DISPLAY "Choose an option:"
+               DISPLAY "1. Create Account"
+               DISPLAY "2. Deposit Money"
+               DISPLAY "3. Withdraw Money"
+               DISPLAY "4. Exit"
+               ACCEPT USER-OPTION
+
+               EVALUATE USER-OPTION
+                   WHEN 1
+                       PERFORM CREATE-ACCOUNT
+                   WHEN 2
+                       PERFORM DEPOSIT-MONEY
+                   WHEN 3
+                       PERFORM WITHDRAW-MONEY
+                   WHEN 4
+                       DISPLAY "Thank you for using our service."
+                   WHEN OTHER
+                       DISPLAY "Invalid option. Please try again."
+               END-EVALUATE
+           END-PERFORM.
+
+       CREATE-ACCOUNT.
+           DISPLAY "Account created successfully."
+           MOVE 0.00 TO ACCOUNT-BALANCE.
+
+       DEPOSIT-MONEY.
+           DISPLAY "Enter amount to deposit: "
+           ACCEPT TRANSACTION-AMOUNT
+           ADD TRANSACTION-AMOUNT TO ACCOUNT-BALANCE
+           DISPLAY "Deposit successful. Current balance: $" 
+           ACCOUNT-BALANCE.
+
+       WITHDRAW-MONEY.
+           DISPLAY "Enter amount to withdraw: "
+           ACCEPT TRANSACTION-AMOUNT
+           IF TRANSACTION-AMOUNT > ACCOUNT-BALANCE
+               DISPLAY "Insufficient balance. Transaction cancelled."
+           ELSE
+               SUBTRACT TRANSACTION-AMOUNT FROM ACCOUNT-BALANCE
+               DISPLAY "Withdrawal successful. Current balance: $" 
+               ACCOUNT-BALANCE
+           END-IF.
