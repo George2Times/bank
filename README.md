@@ -1,7 +1,3 @@
-### README.md for Banking COBOL Project
-
----
-
 # Banking COBOL Project
 
 A simple banking system built using COBOL to demonstrate core functionalities such as account management, deposit, withdrawal, and balance inquiries. The project uses COBOL data files to simulate customer and transaction data storage.
@@ -13,46 +9,53 @@ A simple banking system built using COBOL to demonstrate core functionalities su
 ### File Structure:
 ```
 .
-├── banking.cob       # Main COBOL program source code
-├── banking.cob.bak   # Backup of the COBOL source code
-├── banking.exe       # Compiled COBOL executable (output file)
-├── customer_data.dat # Data file containing customer records
-├── transaction_logs.dat # Placeholder for logging transactions (not implemented yet)
-├── README.md         # Documentation file
-├── .gitignore        # Ignored files for Git
+├── banking.cob                 # Main COBOL program source code
+├── banking.cob.bak             # Backup of the COBOL source code
+├── banking.exe                 # Compiled COBOL executable (output file)
+├── customer_data.dat           # Data file containing customer records
+├── transaction_logs.dat        # Placeholder for logging transactions (not implemented yet)
+├── README.md                   # Documentation file
+├── tests/                      # Test scripts and generated output
+│   ├── test.sh                 # Script to automate COBOL program tests
+│   ├── deposit_test.*          # Files for deposit operation tests
+│   ├── withdraw_test.*         # Files for withdrawal operation tests
+│   ├── view_balance_test.*     # Files for view balance operation tests
+│   ├── customer_data_test_*.dat # Generated test output data files
+├── .gitignore                  # Ignored files for Git
 ```
 
-### COBOL File Record Comparison
-- **Customer Records** (`customer_data.dat`):
-  - **Structure**:
-    ```
-    CustomerID: 5 digits
-    CustomerName: Alphanumeric
-    Balance: Numeric with 2 decimal places
-    PhoneNumber: Alphanumeric
-    ```
-  - Example Record:
-    ```
-    10001John Smith    005001500555-1234
-    ```
-  - **Linkage**: 
-    - `banking.cob` reads and updates records in `customer_data.dat` based on `CustomerID`.
-    - Records are accessed for deposit/withdrawal operations, balance display, etc.
+---
 
-- **Transaction Records** (`transaction_logs.dat` - to be implemented):
-  - **Structure**: 
-    ```
-    TransactionID, CustomerID, TransactionType, Amount, Timestamp
-    ```
-    - Tracks each operation performed on customer accounts.
-  - **Linkage**: To be integrated with banking operations to log deposits and withdrawals.
+## COBOL File Record Comparison
+
+### Customer Records (`customer_data.dat`):
+- **Structure** (59 chars):
+  - `CustomerID`: 5 digits
+  - `CustomerName`: 30 Alphanumeric
+  - `Balance`: 7 Numeric + 2 decimal places
+  - `PhoneNumber`: 15 Alphanumeric
+- **Example Record**:
+  ```
+  10001John Smith    005001500555-1234
+  ```
+- **Linkage**:
+  - `banking.cob` reads and updates records in `customer_data.dat` based on `CustomerID`.
+  - Records are accessed for deposit/withdrawal operations, balance display, etc.
+
+### Transaction Records (`transaction_logs.dat` - to be implemented):
+- **Structure**:
+  - `TransactionID`, `CustomerID`, `TransactionType`, `Amount`, `Timestamp`
+- **Purpose**:
+  - Tracks each operation performed on customer accounts.
+  - Enables transaction auditing and history.
 
 ---
 
 ## Planned Features
-- **Transaction Functionality**:
-  - Add support for `transaction_logs.dat` to record and log each operation.
-  - Implement options for auditing and account activity history.
+
+### Transaction Functionality:
+- Add support for `transaction_logs.dat` to record and log each operation.
+- Implement options for auditing and account activity history.
 
 ---
 
@@ -77,7 +80,6 @@ A simple banking system built using COBOL to demonstrate core functionalities su
    ```bash
    cobc -x banking.cob -o banking.exe
    ```
-
 2. **Run the executable**:
    ```bash
    ./banking.exe
@@ -87,45 +89,55 @@ A simple banking system built using COBOL to demonstrate core functionalities su
 
 ## Testing the Program
 
-1. **Test the program manually**:
-   - Run `banking.exe` and follow the on-screen prompts to:
-     - View balance.
-     - Deposit money.
-     - Withdraw money.
+### Manual Testing:
+1. Run `banking.exe` and follow the on-screen prompts:
+   - View balance.
+   - Deposit money.
+   - Withdraw money.
+2. Input a valid `CustomerID` from `customer_data.dat`.
+3. Validate updated balances for deposits/withdrawals.
 
-2. **Expected Input and Output**:
-   - Input a valid `CustomerID` from `customer_data.dat`.
-   - Validate updated balances for deposits/withdrawals.
-
----
-
-## Automating Tests
-
-### Automating COBOL Program Tests:
-1. Use a shell script to automate input for the COBOL program:
+### Automated Tests:
+1. Use `test.sh` to automate tests for core functionalities:
    ```bash
-   echo "1\n10001\n" | ./banking.exe > output.txt
+   ./tests/test.sh
    ```
-   - Simulates entering option `1` (View Balance) and `CustomerID: 10001`.
+   - Backs up `customer_data.dat` and restores it after the tests.
+   - Saves test results in `tests/` as `.out` and `.diff` files.
+   - Outputs customer data to `tests/customer_data_test_output*.dat`.
 
-2. **Compare Outputs**:
-   - Use a tool like `diff` to validate results:
-     ```bash
-     diff output.txt expected_output.txt
-     ```
+2. Compare test results using `diff`:
+   ```bash
+   diff tests/deposit_test.out tests/deposit_test.expected
+   ```
 
 ---
 
 ## TODO
 
-- [ ] Implement transaction logging in `transaction_logs.dat`.
-- [ ] Add support for viewing transaction history for each customer.
-- [ ] Improve error handling for invalid input and corrupted data files.
-- [ ] Create automated tests for edge cases (e.g., invalid `CustomerID`, insufficient balance).
-- [ ] Enhance the `README.md` with visuals such as screenshots or examples.
-- [ ] Refactor code for modularity and better readability.
-- [ ] Add the ability to delete customer records.
-- [ ] Add localization support for better usability in non-English environments.
+### Features to Implement:
+- [ ] **Transaction Logging**: Implement `transaction_logs.dat` to record every transaction.
+- [ ] **Transaction History**: Allow customers to view transaction history by `CustomerID`.
+- [ ] **Localization Support**: Enable support for multiple languages in the user interface.
+
+### Testing Improvements:
+- [ ] **Edge Case Testing**:
+  - Invalid `CustomerID`.
+  - Insufficient balance during withdrawals.
+  - Corrupted or missing data files.
+- [ ] **Dynamic Test Data**:
+  - Automate generation of random customer data for stress testing.
+
+### Codebase Enhancements:
+- [ ] **Error Handling**:
+  - Display meaningful error messages for missing/corrupted files.
+  - Prevent invalid operations (e.g., negative deposits).
+- [ ] **Code Refactoring**:
+  - Modularize COBOL code for better readability and maintainability.
+  - Use standardized naming conventions for variables and sections.
+- [ ] **Interactive Menu**:
+  - Add options for creating/deleting customer records.
+  - Improve menu navigation for better usability.
 
 ---
 

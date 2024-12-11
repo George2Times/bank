@@ -29,7 +29,8 @@
        01 MenuChoice         PIC 9 VALUE 0.   *> User menu choice
        01 InputCustomerID    PIC X(5).        *> Input for customer ID
        01 InputAmount        PIC 9(7)V99.     *> Input for transaction amount
-       01 EOF               PIC X VALUE 'N'. *> End of file marker
+       01 EOF                PIC X VALUE 'N'. *> End of file marker
+       01 ERR                PIC X VALUE 'N'. *> Error marker
        01 IsFound            PIC X VALUE "N". *> Flag to indicate if customer is found
        01 TempBalance        PIC 9(7)V99.     *> Temporary storage for balance operations
 
@@ -37,7 +38,9 @@
        MAIN-PARA.
            *> Display menu and process user input in a loop
            PERFORM DISPLAY-MENU
-           PERFORM UNTIL MenuChoice = 9
+           DISPLAY "Current Menu Choice: " MenuChoice.
+           DISPLAY "ERR Status: " ERR.
+           PERFORM UNTIL MenuChoice = 9 OR ERR = 'Y'
                EVALUATE MenuChoice
                    WHEN 1
                        PERFORM VIEW-BALANCE
@@ -49,6 +52,8 @@
                        DISPLAY "Invalid Choice. Try again."
                END-EVALUATE
                PERFORM DISPLAY-MENU
+               DISPLAY "Current Menu Choice: " MenuChoice
+               DISPLAY "Error Status: " ERR
            END-PERFORM
            DISPLAY "Thank you for using the Banking System!"
            STOP RUN.
@@ -62,7 +67,9 @@
            DISPLAY "3. Withdraw Money".
            DISPLAY "9. Exit".
            DISPLAY "Enter your choice: ".
-           ACCEPT MenuChoice.
+           ACCEPT MenuChoice
+               ON EXCEPTION
+                    MOVE 'Y' TO ERR.
 
        VIEW-BALANCE.
            *> View the balance of a specific customer
@@ -89,27 +96,35 @@
            END-IF.
 
        DEPOSIT-MONEY.
-           *> Add money to a customer's account
+           *> Reset flags and prompt user for input
            MOVE 'N' TO EOF
-           DISPLAY "Enter Customer ID: ".
-           ACCEPT InputCustomerID.
-           DISPLAY "Enter Amount to Deposit: ".
-           ACCEPT InputAmount.
+           DISPLAY "Enter Customer ID: "
+           ACCEPT InputCustomerID
+           DISPLAY "Enter Amount to Deposit: "
+           ACCEPT InputAmount
+           
+           *> Open the customer file for input-output operations
            OPEN I-O CustomerFile
+           
+           *> Search for the customer and update the balance
            PERFORM UNTIL EOF = "Y"
-                   READ CustomerFile INTO CustomerRecord
-                        AT END
-                            MOVE "Y" TO EOF
-                        NOT AT END
+               READ CustomerFile INTO CustomerRecord
+                   AT END
+                       MOVE "Y" TO EOF
+                   NOT AT END
                        IF CustomerID = InputCustomerID
                            ADD InputAmount TO Balance
+                           DISPLAY "Before REWRITE: " CustomerRecord
                            REWRITE CustomerRecord
+                           DISPLAY "After REWRITE: " CustomerRecord
                            DISPLAY "Deposit Successful!"
                            DISPLAY "New Balance: $" Balance
                            MOVE "Y" TO IsFound
                        END-IF
-                   END-READ
-           END-PERFORM.
+               END-READ
+           END-PERFORM
+           
+           *> Close the customer file and handle errors
            CLOSE CustomerFile
            IF IsFound NOT = "Y"
                DISPLAY "Customer not found."
@@ -124,22 +139,26 @@
            ACCEPT InputAmount.
            OPEN I-O CustomerFile
            PERFORM UNTIL EOF = 'Y'
-                   READ CustomerFile INTO CustomerRecord
-                        AT END
-                            MOVE 'Y' TO EOF
-                        NOT AT END
-                            IF CustomerID = InputCustomerID
-                                IF Balance >= InputAmount
-                                    SUBTRACT InputAmount FROM Balance
-                                    REWRITE CustomerRecord
-                                    DISPLAY "Withdrawal Successful!"
-                                    DISPLAY "New Balance: $" Balance
-                                    MOVE 'Y' TO IsFound
-                                ELSE
-                                    DISPLAY "Insufficient Balance."
-                                END-IF
+               READ CustomerFile INTO CustomerRecord
+                    AT END
+                        MOVE 'Y' TO EOF
+                    NOT AT END
+                        IF CustomerID = InputCustomerID
+                            IF Balance < InputAmount
+                                DISPLAY "Insufficient Balance."
+                            ELSE
+                                SUBTRACT InputAmount FROM Balance
+                                DISPLAY "Before REWRITE: " 
+                                CustomerRecord
+                                REWRITE CustomerRecord
+                                DISPLAY "After REWRITE: " 
+                                CustomerRecord
+                                DISPLAY "Withdrawal Successful!"
+                                DISPLAY "New Balance: $" Balance
+                                MOVE 'Y' TO IsFound
                             END-IF
-                        END-READ
+                        END-IF
+               END-READ
            END-PERFORM
            CLOSE CustomerFile
            IF IsFound NOT = 'Y'

@@ -1,1 +1,13 @@
 *.exe
+
+# Ignore test output data
+tests/customer_data_test_output*.dat
+
+# Ignore test output files
+tests/*.out
+
+# Ignore test diff files
+tests/*.diff
+
+# Ignore backup files
+*.bak
