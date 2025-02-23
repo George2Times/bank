@@ -1,6 +1,7 @@
 # Banking COBOL Project
 
 [![Language](https://img.shields.io/badge/language-COBOL-blue)](https://shields.io/) 
+[![Lines of Code](https://tokei.rs/b1/github/George2Times/bank)](https://github.com/George2Times/bank)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)](https://github.com/George2Times/bank)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/George2Times/bank/actions)
