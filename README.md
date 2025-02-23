@@ -1,5 +1,13 @@
 # Banking COBOL Project
 
+[![Language](https://img.shields.io/badge/language-COBOL-blue)](https://shields.io/) 
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Status](https://img.shields.io/badge/status-in%20development-yellow)](https://github.com/George2Times/bank)
+[![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/George2Times/bank/actions)
+[![Contributions](https://img.shields.io/badge/contributions-welcome-brightgreen)](https://github.com/George2Times/bank)
+[![Issues](https://img.shields.io/github/issues/George2Times/bank)](https://github.com/George2Times/bank/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/George2Times/bank)](https://github.com/George2Times/bank)
+
 A simple banking system built using COBOL to demonstrate core functionalities such as account management, deposit, withdrawal, and balance inquiries. The project uses COBOL data files to simulate customer and transaction data storage.
 
 ---
